@@ -1,0 +1,19 @@
+name: flutter_forms
+description: "A Flutter to-do project to illustrate Flutter Forms subject. Based on Net Ninja's Flutter Form crash course inside Flutter Masterclass."
+publish_to: 'none'
+version: 1.0.0+1
+
+environment:
+  sdk: '>=3.3.4 <4.0.0'
+  
+dependencies:
+  flutter:
+    sdk: flutter
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^3.0.0
+
+flutter:
+  uses-material-design: true
