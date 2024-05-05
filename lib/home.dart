@@ -1,3 +1,5 @@
+import 'dart:ffi';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_forms/models/todo.dart';
 import 'package:flutter_forms/todo_list.dart';
@@ -10,7 +12,10 @@ class Home extends StatefulWidget {
 }
 
 class _HomeState extends State<Home> {
-  String _email = '';
+  final _formGlobalKey = GlobalKey<FormState>();
+  Priority _selectedPriority = Priority.low;
+  String _title = '';
+  String _description = '';
 
   final List<Todo> todos = [
     const Todo(
@@ -42,20 +47,95 @@ class _HomeState extends State<Home> {
             Expanded(child: TodoList(todos: todos)),
 
             // form stuff below here
-            TextField(
-              keyboardType: TextInputType.emailAddress,
-              // obscureText: true,
-              decoration: const InputDecoration(
-                label: Text('Email address'),
+            Form(
+              key: _formGlobalKey,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: [
+                  //to-do title
+                  TextFormField(
+                    maxLength: 20,
+                    decoration: const InputDecoration(
+                      label: Text('To Do Title'),
+                    ),
+                    validator: (value) {
+                      if (value == null || value.isEmpty || value.length < 5) {
+                        return 'You must enter a value for the title';
+                      }
+                      return null;
+                    },
+                    onSaved: (value) {
+                      _title = value!;
+                    },
+                  ),
+
+                  //to-do description
+                  TextFormField(
+                    maxLength: 20,
+                    decoration: const InputDecoration(
+                      label: Text('To description'),
+                    ),
+                    validator: (value) {
+                      if (value == null || value.isEmpty || value.length < 5) {
+                        return 'Enter a description at least 5 characters long';
+                      }
+                      return null;
+                    },
+                    onSaved: (value) {
+                      _description = value!;
+                    },
+                  ),
+
+                  //priority
+                  DropdownButtonFormField(
+                      value: _selectedPriority,
+                      decoration: const InputDecoration(
+                        label: Text('Priority of to-do'),
+                      ),
+                      items: Priority.values.map((p) {
+                        return DropdownMenuItem(
+                          value: p,
+                          child: Text(p.title),
+                        );
+                      }).toList(),
+                      onChanged: (value) {
+                        setState(() {
+                          _selectedPriority = value!;
+                        });
+                      }),
+
+                  //submit button
+                  const SizedBox(
+                    height: 20,
+                  ),
+                  FilledButton(
+                    onPressed: () {
+                      if (_formGlobalKey.currentState!.validate()) {
+                        _formGlobalKey.currentState!.save();
+                        setState(() {
+                          todos.add(
+                            Todo(
+                              title: _title,
+                              description: _description,
+                              priority: _selectedPriority,
+                            ),
+                          );
+                          _formGlobalKey.currentState!.reset();
+                          _selectedPriority = Priority.low;
+                        });
+                      }
+                    },
+                    style: FilledButton.styleFrom(
+                      backgroundColor: Colors.grey[800],
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(15),
+                      ),
+                    ),
+                    child: const Text('Add'),
+                  ),
+                ],
               ),
-              onChanged: (value) {
-                setState(() {
-                  _email = value.trim();
-                });
-              },
             ),
-            const SizedBox(height: 20),
-            Text('Your email: $_email'),
           ],
         ),
       ),
